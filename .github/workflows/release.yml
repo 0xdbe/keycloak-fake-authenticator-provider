@@ -29,14 +29,14 @@ jobs:
           distribution: 'temurin'
         if: ${{ steps.release.outputs.releases_created == 'true' }}
       - name: build
-        run: mvn --batch-mode --settings -DskipTests package
+        run: mvn --batch-mode -DskipTests package
         env:
           ACTOR: ${{ github.actor }}
           TOKEN: ${{ secrets.MAVEN_REGISTRY_PAT }}
-          if: ${{ steps.release.outputs.releases_created == 'true' }}
+        if: ${{ steps.release.outputs.releases_created == 'true' }}
       - name: Publish package
-        run: mvn --batch-mode  --batch-mode -DskipTests deploy
+        run: mvn --batch-mode --batch-mode -DskipTests deploy
         env:
           ACTOR: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          if: ${{ steps.release.outputs.releases_created == 'true' }}
+        if: ${{ steps.release.outputs.releases_created == 'true' }}
