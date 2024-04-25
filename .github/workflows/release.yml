@@ -27,7 +27,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-          if: ${{ steps.release.outputs.releases_created == 'true' }}
+        if: ${{ steps.release.outputs.releases_created == 'true' }}
       - name: build
         run: mvn --batch-mode --settings -DskipTests package
         env:
