@@ -1,0 +1,42 @@
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  checks: write
+  statuses: write
+  contents: write
+  packages: write
+  pull-requests: write
+
+name: release
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: release please
+        uses: google-github-actions/release-please-action@v4
+        id: release
+      - name: clone repository
+        uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.releases_created == 'true' }}
+      - name: configure java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          if: ${{ steps.release.outputs.releases_created == 'true' }}
+      - name: build
+        run: mvn --batch-mode --settings -DskipTests package
+        env:
+          ACTOR: ${{ github.actor }}
+          TOKEN: ${{ secrets.MAVEN_REGISTRY_PAT }}
+          if: ${{ steps.release.outputs.releases_created == 'true' }}
+      - name: Publish package
+        run: mvn --batch-mode  --batch-mode -DskipTests deploy
+        env:
+          ACTOR: ${{ github.actor }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if: ${{ steps.release.outputs.releases_created == 'true' }}

@@ -1,0 +1,29 @@
+name: test
+
+on:
+  pull_request:
+    types: [ assigned, opened, synchronize, reopened, labeled ]
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone repository
+        uses: actions/checkout@v4
+      - name: configure java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+      - name: test with playwrigh
+        run: mvn --batch-mode test
+      - name: upload playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwrights-artifacts
+          path: target/playwright/
