@@ -1,0 +1,8 @@
+{
+  "release-type": "maven",
+  "packages": {
+    ".": {
+      "skip-snapshot": true
+    }
+  }
+}
