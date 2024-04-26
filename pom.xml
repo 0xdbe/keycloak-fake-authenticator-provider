@@ -5,7 +5,7 @@
 
   <groupId>com.github.zeroxdbe</groupId>
   <artifactId>keycloak-fake-authenticator-provider</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 
   <name>keycloak-fake-authenticator-provider</name>
   <url>https://github.com/0xdbe/keycloak-fake-authenticator-provider</url>
