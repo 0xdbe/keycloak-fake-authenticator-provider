@@ -3,7 +3,7 @@ package com.github.zeroxdbe.keycloak.fakeauthenticator;
 import java.nio.file.Paths;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,19 +17,18 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Response;
 import com.microsoft.playwright.Tracing;
+import com.microsoft.playwright.options.AriaRole;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 public class FakeAuthenticatorTest {
 
     // Shared between all tests in this class.
     static Playwright playwright;
     static Browser browser;
     static KeycloakServer keycloakServer;
-
-    static int debug;
 
     // New instance for each test method.
     BrowserContext context;
@@ -59,7 +58,6 @@ public class FakeAuthenticatorTest {
 
     @BeforeEach
     void createContextAndPage() {
-        debug = 1;
         context = browser.newContext();
         context.tracing().start(new Tracing.StartOptions()
         .setScreenshots(true)
@@ -74,17 +72,47 @@ public class FakeAuthenticatorTest {
     }
 
     @Test
-    public void whenCallingSayHello_thenReturnHello() {
-        String Greeting = "Hello";
-        assertTrue("Hello".equals(Greeting));
-    }
-
-    @Test
-    public void shouldBeAvailable() {
+    void shouldBeAvailable() {
         Response response = page.navigate(keycloakServer.getAuthorizationUrl("playwright"));
         Assert.assertEquals(200, response.status());
         context.tracing().stop(new Tracing.StopOptions()
         .setPath(Paths.get("target/playwright/trace/shouldBeAvailable.zip")));
+    }
+
+    @Test
+    void shouldFailOTP() {
+      page.navigate(keycloakServer.getAuthorizationUrl("playwright"));
+      page.getByLabel("Email").fill("john@acme.com");
+      page.querySelector("#password").fill("test");
+      page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In")).click();
+      page.screenshot(new Page.ScreenshotOptions()
+        .setPath(Paths.get("target/playwright/screenshot/shouldFailOTP.png")));
+      assertThat(page.getByLabel("One-time code")).isVisible();
+      page.getByLabel("One-time code").fill("0000");
+      page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In")).click();
+      assertThat(page.getByText("Invalid username or password.")).isVisible();
+      page.screenshot(new Page.ScreenshotOptions()
+        .setPath(Paths.get("target/playwright/screenshot/shouldFailOTP.png")));
+      context.tracing().stop(new Tracing.StopOptions()
+      .setPath(Paths.get("target/playwright/trace/shouldFailOTP.zip")));
+    }
+
+    @Test
+    void shouldPassOTP() {
+      page.navigate(keycloakServer.getAuthorizationUrl("playwright"));
+      page.getByLabel("Email").fill("john@acme.com");
+      page.querySelector("#password").fill("test");
+      page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In")).click();
+      page.screenshot(new Page.ScreenshotOptions()
+        .setPath(Paths.get("target/playwright/screenshot/shouldPassOTP_1.png")));
+      assertThat(page.getByLabel("One-time code")).isVisible();
+      page.getByLabel("One-time code").fill("1234");
+      page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign In")).click();
+      assertThat(page.getByText("Invalid username or password.")).not().isVisible();
+      page.screenshot(new Page.ScreenshotOptions()
+        .setPath(Paths.get("target/playwright/screenshot/shouldPassOTP_2.png")));
+      context.tracing().stop(new Tracing.StopOptions()
+      .setPath(Paths.get("target/playwright/trace/shouldPassOTP.zip")));
     }
 
 }

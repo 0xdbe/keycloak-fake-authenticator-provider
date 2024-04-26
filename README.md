@@ -34,8 +34,6 @@ sudo kc.sh --debug --verbose start-dev
 
 # Test
 
-Note: test hooks (beforeAll, beforeEach, ...) are shipped since testcontainers-keycloak update (3.3.0)
-
 - run test on your host
 
 ```
