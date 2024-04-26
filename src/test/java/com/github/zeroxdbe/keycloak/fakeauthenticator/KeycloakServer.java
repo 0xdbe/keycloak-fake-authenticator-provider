@@ -1,16 +1,12 @@
 package com.github.zeroxdbe.keycloak.fakeauthenticator;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import jakarta.ws.rs.core.Response;
